@@ -47,6 +47,7 @@ public class Translator : MonoBehaviour
 		else
 		{
 			Debug.LogError("The Translation of the Localizer has not been initialized or is empty, the translator will stop updating !");
+			Updateable = false;
 		}
 	}
 
