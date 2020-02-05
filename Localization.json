@@ -1,0 +1,6 @@
+[
+    {
+       "This is a template text!" : "This text got replaced!",
+       "{REGEX}=^The variable is equal to (\\d)!$" : "${MATCH1} is what the variable is equal to !"
+    }
+]
