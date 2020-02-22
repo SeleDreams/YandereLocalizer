@@ -32,4 +32,5 @@ public class LocalizerJSON : JsonData
 		}
 		return TranslationObjects.ToArray();
 	}
+
 }

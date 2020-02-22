@@ -11,10 +11,11 @@ public class RegexObject : ITranslationObject
 
 	public string Translate(string text)
 	{
-		if (Regex.IsMatch(text))
+		if (Matches(text))
 		{
 			MatchCollection TranslationVariablesCollection = TranslationVariablesRegex.Matches(Translation);
 			Match RegexMatch = Regex.Match(text);
+			MatchCollection RegexMatches = Regex.Matches(text);
 
 			var Variables = new Dictionary<int, string>();
 
@@ -25,11 +26,26 @@ public class RegexObject : ITranslationObject
 			}
 			// Replaces all the variables by their value in the translation
 			string NewTranslation = Translation;
-			for (int VariableID = 0; VariableID < RegexMatch.Groups.Count; VariableID++)
+			if (RegexMatch.Groups.Count > 1)
 			{
-				if (Variables.ContainsKey(VariableID))
+				for (int VariableID = 0; VariableID < RegexMatch.Groups.Count; VariableID++)
 				{
-					NewTranslation = NewTranslation.Replace(Variables[VariableID], RegexMatch.Groups[VariableID].Value);
+					if (Variables.ContainsKey(VariableID))
+					{
+						NewTranslation = NewTranslation.Replace(Variables[VariableID], RegexMatch.Groups[VariableID].Value);
+					}
+				}
+			}
+			else
+			{
+				int id = 1;
+				foreach (Match match in RegexMatches)
+				{
+					if (Variables.ContainsKey(id))
+					{
+						NewTranslation = NewTranslation.Replace(Variables[id], match.Value);
+					}
+					id++;
 				}
 			}
 			return NewTranslation;
@@ -40,6 +56,26 @@ public class RegexObject : ITranslationObject
 		}
 	}
 
+	public string GetPattern()
+	{
+		return Regex.ToString();
+	}
+
+	public string GetTranslationPattern()
+	{
+		return Translation;
+	}
+
+	public bool Matches(string text)
+	{
+		return Regex.IsMatch(text);
+	}
+
+
+	public bool isLitteral()
+	{
+		return false;
+	}
 
 	public Regex TranslationVariablesRegex = new Regex("(\\${MATCH(\\d)})");
 	public Regex Regex;

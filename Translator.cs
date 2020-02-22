@@ -38,6 +38,7 @@ public class Translator : MonoBehaviour
 				string TranslationResult = Translate(Label.text, Translation);
 				if (TranslationResult != null)
 				{
+					Debug.Log(TranslationResult);
 					OriginalText = Label.text;
 					TranslatedText = TranslationResult;
 					Label.text = TranslationResult;
@@ -47,7 +48,6 @@ public class Translator : MonoBehaviour
 		else
 		{
 			Debug.LogError("The Translation of the Localizer has not been initialized or is empty, the translator will stop updating !");
-			Updateable = false;
 		}
 	}
 
@@ -56,20 +56,20 @@ public class Translator : MonoBehaviour
 	/// </summary>
 	public void UpdateTranslation()
 	{
-		bool TextVisible = !Label.isActiveAndEnabled || !Label.isVisible || string.IsNullOrEmpty(Label.text);
+		bool TextVisible = Label.isVisible && !string.IsNullOrEmpty(Label.text);
 		bool TextChanged = Label.text.Length != TranslatedText.Length && Label.text != TranslatedText;
 
-		if (TextVisible && TextChanged)
+		if (TextVisible)
 		{
 			bool WasRestoredToOriginalText = Label.text.Length == OriginalText.Length && Label.text == OriginalText;
-			if (WasRestoredToOriginalText)
+			if (TextChanged &&  !string.IsNullOrEmpty(TranslatedText) && WasRestoredToOriginalText)
 			{
 				Label.text = TranslatedText;
 			}
-		}
-		else
-		{
-			UpdateLabel();
+			else
+			{
+				UpdateLabel();
+			}
 		}
 	}
 	
