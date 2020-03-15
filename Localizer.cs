@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Linq;
+using System;
+using System.IO.IsolatedStorage;
 
 public class Localizer
 {
@@ -9,38 +11,49 @@ public class Localizer
 
 	public static void StartLocalizer()
 	{
-		SceneManager.sceneLoaded += OnSceneLoaded;
+		//SceneManager.sceneLoaded += OnSceneLoaded;
 		UpdateLabels();
 	}
 
 	public static void UpdateLabels()
 	{
 		LoadTranslations();
-		UILabel[] Labels = Object.FindObjectsOfType<UILabel>();
+		if (SharedTranslations != null || Translations != null)
+		{
+			UILabel[] Labels = Resources.FindObjectsOfTypeAll<UILabel>();
 
-		if (Labels.Length <= 0)
-		{
-			Debug.LogError("No UILabels found in the scene!");
+			if (Labels.Length <= 0)
+			{
+				Debug.LogError("No UILabels found in the scene!");
+			}
+			else if (Translations == null || Translations.Length == 0)
+			{
+				Debug.LogError("The Translations Array is null or empty !");
+			}
+			InitializeTranslators(Labels);
 		}
-		else if (Translations == null || Translations.Length == 0)
-		{
-			Debug.LogError("The Translations Array is null or empty !");
-		}
-		InitializeTranslators(Labels);
 	}
 
 	public static void LoadTranslations()
 	{
 		if (SharedTranslations == null)
 		{
-			SharedTranslations = LocalizerJSON.LoadFromJSON(Application.streamingAssetsPath + "/Yandere_Next/Mods/default/Localization/French/Shared/Localization.json");
+			try
+			{
+				SharedTranslations = LocalizerJSON.LoadFromJSON(Application.streamingAssetsPath + "/Yandere_Next/Mods/default/Localization/French/Shared/Localization.json");
+			}
+			catch
+			{
+				SharedTranslations = new ITranslationObject[0];
+			}
 		}
 		try
 		{
 			Translations = LocalizerJSON.LoadFromJSON(Application.streamingAssetsPath + "/Yandere_Next/Mods/default/Localization/French/" + SceneManager.GetActiveScene().name + "/Localization.json").Union(SharedTranslations).ToArray();
 		}
-		catch
+		catch (Exception ex)
 		{
+			Debug.Log("Couldn't load translation file " + ex.Message);
 			Translations = SharedTranslations;
 		}
 	}
